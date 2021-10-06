@@ -4,12 +4,12 @@ app.use(express.json());
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const path = require("path");
-const dbpath = path.join(__dirname, "covid19India.db");
+const dbPath = path.join(__dirname, "covid19India.db");
 let db = null;
 const InitialDbAndServer = async () => {
   try {
     db = await open({
-      fileName: dbpath,
+      filename: dbPath,
       driver: sqlite3.Database,
     });
     app.listen(3000);
@@ -22,19 +22,19 @@ InitialDbAndServer();
 
 
 const convertObjectStateResponse=(dbO)=>{
-    stateId:state_id,
-    stateName:stateName,
-    population:population,
+    stateId:dbo.state_id,
+    stateName:dbo.state_name,
+    population:dbo.population,
 }
 
 const convertObjectDistrictResponse=(dbO)=>{
-    districtId:district_id,
-    districtName:districtName,
-    stateId:state_id,
-    cases:cases,
-    cured:cured,
-    active:active,
-    deaths:deaths,
+    districtId:dbo.district_id,
+    districtName:dbo.district_name,
+    stateId:dbo.state_id,
+    cases:dbo.cases,
+    cured:dbo.cured,
+    active:dbo.active,
+    deaths:dbo.deaths,
 }
 
 app.get("/states/",async(request,response)=>{
@@ -42,7 +42,7 @@ app.get("/states/",async(request,response)=>{
     SELECT *
     FROM state`;
     const stateArray=await db.all(states)
-    response.send(stateArray.map((each)=>convertObjectStateResponse.(each)));
+    response.send(stateArray.map((each)=>convertObjectStateResponse(each)));
 });
 
 app.get("/states/:stateId/",async(request,response)=>{
@@ -84,7 +84,7 @@ app.delete("/districts/:districtId/",async(request,response)=>{
     district 
     WHERE
     district_id=${districtId};`;
-    await db.run(deleteDistrict);
+    await db.get(deleteDistrict);
     response.send("District Removed")
 });
 
@@ -119,7 +119,7 @@ app.get("/districts/:districtId/",(request,response)=>{
     SUM(deaths) as TotalDeaths 
     FROM district
     WHERE state_id=${stateId};`;
-    const districtDetails=await db.run(getDetails);
+    const districtDetails=await db.get(getDetails);
     response.send(districtDetails.map((each)=>convertObjectDistrictResponse(each)));
 });
 
